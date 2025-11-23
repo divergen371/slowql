@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up OCaml
+        uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: 4.14.x
+      
+      - name: Install dependencies
+        run: |
+          opam install . --deps-only
+      
+      - name: Build release binary
+        run: |
+          opam exec -- dune build --release
+      
+      - name: Create release archive
+        run: |
+          mkdir -p release
+          cp _build/default/bin/slowql.exe release/slowql || cp _build/default/bin/main.exe release/slowql
+          tar -czf slowql-${{ github.ref_name }}-linux-x64.tar.gz -C release slowql
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            slowql-${{ github.ref_name }}-linux-x64.tar.gz
+          body: |
+            Release ${{ github.ref_name }}
+            
+            ## Installation
+            
+            ```bash
+            tar -xzf slowql-${{ github.ref_name }}-linux-x64.tar.gz
+            sudo mv slowql /usr/local/bin/
+            ```
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
