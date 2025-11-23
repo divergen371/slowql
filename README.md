@@ -2,6 +2,10 @@
 
 [日本語](README.ja.md) | English
 
+![CI](https://github.com/divergen371/slowql/workflows/CI/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![OCaml](https://img.shields.io/badge/OCaml-5.2+-orange.svg)
+
 A high-performance slow query log analyzer for MySQL and PostgreSQL, written in OCaml.
 
 ## Overview

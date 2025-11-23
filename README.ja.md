@@ -2,6 +2,10 @@
 
 日本語 | [English](README.md)
 
+![CI](https://github.com/divergen371/slowql/workflows/CI/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![OCaml](https://img.shields.io/badge/OCaml-5.2+-orange.svg)
+
 MySQL と PostgreSQL 向けの高性能スロークエリログ解析ツール（OCaml 製）
 
 ## 概要
