@@ -155,10 +155,6 @@ slowql/
 - `digestif`: 匿名化のためのハッシュ化
 - `notty`: ターミナル UI
 
-## コントリビューション
-
-コントリビューションを歓迎します！Issue や Pull Request をお気軽にお送りください。
-
 ## ライセンス
 
 MIT License
