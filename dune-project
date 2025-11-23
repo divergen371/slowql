@@ -25,6 +25,8 @@
   (alcotest :with-test)
   re
   yojson
+  csv
+  decompress
   caqti
   caqti-lwt
   cohttp-lwt-unix
