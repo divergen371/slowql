@@ -5,7 +5,7 @@
   - [x] Update `dune` files
 - [ ] Core Logic Implementation
   - [x] Implement `Fingerprint` module (SQL normalization)
-  - [x] Implement `Stats` module (Aggregation logic: P50, P95, etc.)
+  - [x] Implement `Stats` module (Aggregation logic: P1, P50, P95, P99, Min, Max, Avg, STD)
   - [ ] Implement `Parser_mysql` (Parse MySQL slow query log)
   - [ ] Implement `Parser_pg` (Parse PostgreSQL log)
   - [ ] Implement `Log_reader` (Handle plain/gzip file reading)
