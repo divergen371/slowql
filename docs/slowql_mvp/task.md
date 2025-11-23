@@ -1,0 +1,21 @@
+# SlowQL MVP Implementation Tasks
+
+- [x] Project Setup
+  - [x] Add dependencies (`re`, `yojson`, `camlzip`?) to `dune-project` and `slowql.opam`
+  - [x] Update `dune` files
+- [ ] Core Logic Implementation
+  - [x] Implement `Fingerprint` module (SQL normalization)
+  - [x] Implement `Stats` module (Aggregation logic: P50, P95, etc.)
+  - [ ] Implement `Parser_mysql` (Parse MySQL slow query log)
+  - [ ] Implement `Parser_pg` (Parse PostgreSQL log)
+  - [ ] Implement `Log_reader` (Handle plain/gzip file reading)
+- [ ] Reporting
+  - [ ] Implement `Report` module (JSON output)
+  - [ ] Implement `Report` module (CSV output)
+- [ ] CLI & Integration
+  - [ ] Update `bin/slowql.ml` to match requested CLI interface
+  - [ ] Wire everything together
+- [ ] Verification
+  - [ ] Test with `my_slow_dummy.log` (PostgreSQL)
+  - [ ] Create dummy MySQL log and test
+  - [ ] Verify JSON/CSV output correctness

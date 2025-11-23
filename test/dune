@@ -1,0 +1,3 @@
+(test
+ (name main)
+ (libraries slowql_lib alcotest))

@@ -1,0 +1,4 @@
+(library
+ (name slowql_lib)
+ (public_name slowql.lib)
+ (libraries re yojson csv ptime ptime.clock.os decompress.de decompress.zl))

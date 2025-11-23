@@ -1,0 +1,4 @@
+(executable
+ (public_name slowql)
+ (name slowql)
+ (libraries cmdliner slowql_lib))

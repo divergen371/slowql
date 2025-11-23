@@ -1,0 +1,7 @@
+2025-11-23 10:00:01.123 JST [1001] app_user@mydb LOG:  duration: 1205.500 ms  statement: SELECT * FROM users WHERE id = 12345;
+2025-11-23 10:00:05.456 JST [1002] app_user@mydb LOG:  duration: 543.200 ms  statement: UPDATE products SET stock = stock - 1 WHERE id = 987;
+2025-11-23 10:01:12.789 JST [1003] analytics@mydb LOG:  duration: 5002.100 ms  statement: SELECT count(*) FROM orders WHERE created_at >= '2025-01-01';
+2025-11-23 10:02:30.000 JST [1001] app_user@mydb LOG:  duration: 210.000 ms  statement: INSERT INTO audit_logs (user_id, action) VALUES (12345, 'login');
+2025-11-23 10:05:00.111 JST [1004] batch@mydb LOG:  duration: 15000.000 ms  statement: REFRESH MATERIALIZED VIEW CONCURRENTLY daily_stats;
+2025-11-23 10:10:01.222 JST [1001] app_user@mydb LOG:  duration: 1100.000 ms  statement: SELECT * FROM users WHERE email = 'test@example.com';
+2025-11-23 10:15:22.333 JST [1002] app_user@mydb LOG:  duration: 850.500 ms  statement: SELECT p.name, c.name FROM products p JOIN categories c ON p.category_id = c.id WHERE c.id = 5;
