@@ -1,0 +1,26 @@
+# OCaml/Dune build artifacts
+_build/
+*.install
+*.merlin
+
+# Output files
+slowql.json
+slowql.csv
+result.json
+result.csv
+*.log.gz
+
+# Editor and IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# opam local switch
+_opam/
+
+# Test outputs
+*.output
+_tests/
