@@ -23,6 +23,7 @@
   (ocaml
    (>= 5.2.0))
   (alcotest :with-test)
+  (ocamlformat :build)
   re
   yojson
   csv
