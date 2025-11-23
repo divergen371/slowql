@@ -20,7 +20,8 @@
  (synopsis "A short synopsis")
  (description "A longer description")
  (depends
-  ocaml
+  (ocaml
+   (>= 5.2.0))
   (alcotest :with-test)
   re
   yojson
