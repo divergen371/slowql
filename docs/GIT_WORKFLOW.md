@@ -5,9 +5,10 @@ SlowQL プロジェクトにおける日常的な Git 操作のガイドです�
 ## 目次
 
 1. [基本的な開発フロー](#基本的な開発フロー)
-2. [よくある操作](#よくある操作)
-3. [トラブルシューティング](#トラブルシューティング)
-4. [ベストプラクティス](#ベストプラクティス)
+2. [Git Worktree（AI 駆動開発）](#git-worktreeai駆動開発)
+3. [よくある操作](#よくある操作)
+4. [トラブルシューティング](#トラブルシューティング)
+5. [ベストプラクティス](#ベストプラクティス)
 
 ## 基本的な開発フロー
 
@@ -130,6 +131,330 @@ git branch -d feature/parser-mysql
 
 # リモートブランチも削除（必要に応じて）
 git push origin --delete feature/parser-mysql
+```
+
+## Git Worktree（AI 駆動開発）
+
+**Git worktree**は、AI 駆動開発において特に重要なツールです。複数のブランチで並行作業が可能になり、開発効率が大幅に向上します。
+
+### なぜ AI 駆動開発に必須なのか
+
+#### 1. 複数の AI 提案を並行評価
+
+AI が複数の異なるアプローチを提案した場合、それぞれを別の worktree で実装・比較できます。
+
+```bash
+# 提案1: 正規表現ベースのパーサー
+git worktree add ../slowql-regex feature/parser-regex
+
+# 提案2: パーサーコンビネータベース
+git worktree add ../slowql-combinator feature/parser-combinator
+
+# 両方を実装して性能比較
+cd ../slowql-regex && dune build && time ./slowql test.log
+cd ../slowql-combinator && dune build && time ./slowql test.log
+```
+
+#### 2. ビルド状態の保持
+
+ブランチを切り替えると`_build`ディレクトリが無効になりますが、worktree なら各ディレクトリで独立してビルド済み状態を保持できます。
+
+**従来の方法（遅い）**:
+
+```bash
+git checkout feature-a
+dune build          # 再ビルド（遅い）
+git checkout feature-b
+dune build          # また再ビルド（遅い）
+```
+
+**worktree を使用（速い）**:
+
+```bash
+cd ~/slowql-feature-a
+dune build          # 一度だけビルド
+
+cd ~/slowql-feature-b
+dune build          # 一度だけビルド
+
+# 以降は切り替えてもビルド済み状態を維持
+```
+
+#### 3. IDE で複数ウィンドウ
+
+VSCode や Emacs/Vim で、複数の worktree を別ウィンドウで開いて並行開発できます。
+
+```bash
+# VSCodeで3つのworktreeを同時に開く
+code ~/slowql              # main
+code ~/slowql-parser       # feature/parser-mysql
+code ~/slowql-report       # feature/html-report
+```
+
+#### 4. 実装の比較とテスト
+
+新旧実装を並べて比較・デバッグできます。
+
+```bash
+# 古い実装と新しい実装で出力を比較
+diff <(~/slowql-old/slowql test.log) \
+     <(~/slowql-new/slowql test.log)
+
+# 両方を同時実行してベンチマーク
+hyperfine \
+  '~/slowql-old/slowql test.log' \
+  '~/slowql-new/slowql test.log'
+```
+
+### 基本的な使い方
+
+#### worktree の作成
+
+```bash
+# 既存のブランチ用のworktreeを作成
+git worktree add ../slowql-parser feature/parser-mysql
+
+# 新しいブランチを作成しつつworktreeを追加
+git worktree add -b feature/new-feature ../slowql-new
+
+# mainブランチ用のworktreeを作成（読み取り専用参照用）
+git worktree add ../slowql-main main
+```
+
+#### worktree 一覧の表示
+
+```bash
+git worktree list
+
+# 出力例:
+# /Users/you/slowql              abc1234 [main]
+# /Users/you/slowql-parser       def5678 [feature/parser-mysql]
+# /Users/you/slowql-report       ghi9012 [feature/html-report]
+```
+
+#### worktree での作業
+
+```bash
+# worktreeに移動
+cd ../slowql-parser
+
+# 通常通りgit操作
+git status
+git add .
+git commit -m "feat(parser): implement MySQL parser"
+git push origin feature/parser-mysql
+
+# 元のディレクトリでも変更が反映される
+cd ~/slowql
+git fetch
+git log feature/parser-mysql
+```
+
+#### worktree の削除
+
+```bash
+# worktreeを削除（ブランチは削除されない）
+git worktree remove ../slowql-parser
+
+# 強制削除（未コミットの変更があっても）
+git worktree remove --force ../slowql-parser
+
+# ブランチも一緒に削除したい場合
+git worktree remove ../slowql-parser
+git branch -d feature/parser-mysql
+```
+
+### AI 駆動開発でのワークフロー
+
+#### パターン 1: 複数機能の並行開発
+
+```bash
+# プロジェクトルート
+~/slowql/                    # main (参照用)
+
+# 各機能ごとにworktree
+~/slowql-parser-mysql/       # feature/parser-mysql
+~/slowql-parser-postgres/    # feature/parser-postgres
+~/slowql-html-report/        # feature/html-report
+
+# 各ディレクトリで独立して開発
+cd ~/slowql-parser-mysql && code . &
+cd ~/slowql-parser-postgres && code . &
+cd ~/slowql-html-report && code . &
+```
+
+#### パターン 2: 実験的実装の比較
+
+```bash
+# ベースライン
+~/slowql/                    # main
+
+# 3つの異なるアプローチを試す
+~/slowql-approach-a/         # feature/stats-simple
+~/slowql-approach-b/         # feature/stats-streaming
+~/slowql-approach-c/         # feature/stats-parallel
+
+# ベンチマーク
+for dir in ~/slowql-approach-*/; do
+  echo "Testing $dir"
+  cd "$dir"
+  dune build
+  time ./slowql large.log
+done
+```
+
+#### パターン 3: バグ修正と機能開発の並行
+
+```bash
+# メイン開発
+~/slowql/                    # main
+~/slowql-feature/            # feature/new-analytics
+
+# 緊急バグ修正
+~/slowql-hotfix/             # fix/critical-crash
+
+# 機能開発中に緊急バグ報告が来ても、worktreeですぐ対応
+cd ~/slowql-hotfix
+git checkout -b fix/critical-crash
+# バグ修正...
+git push origin fix/critical-crash
+# 機能開発に戻る
+cd ~/slowql-feature
+```
+
+### ディレクトリ構成の推奨
+
+```bash
+# プロジェクトグループ化
+~/projects/slowql/
+  ├── main/              # メインworktree (main)
+  ├── dev/               # 開発用worktree
+  │   ├── parser/        # feature/parser-*
+  │   ├── report/        # feature/report-*
+  │   └── stats/         # feature/stats-*
+  └── fix/               # バグ修正用
+      └── issue-123/     # fix/issue-123
+```
+
+セットアップ:
+
+```bash
+mkdir -p ~/projects/slowql/{main,dev,fix}
+cd ~/projects/slowql
+git clone https://github.com/username/slowql.git main
+cd main
+
+git worktree add ../dev/parser feature/parser-mysql
+git worktree add ../dev/report feature/html-report
+git worktree add ../fix/issue-123 fix/issue-123
+```
+
+### トラブルシューティング
+
+#### worktree が削除できない
+
+```bash
+# エラー: worktree contains modified or untracked files
+
+# 未コミットの変更を確認
+cd ../slowql-parser
+git status
+
+# 変更を保存してから削除
+git stash
+cd ~/slowql
+git worktree remove ../slowql-parser
+
+# または強制削除
+git worktree remove --force ../slowql-parser
+```
+
+#### ブランチが複数の worktree でチェックアウトされている
+
+```bash
+# エラー: 'feature/parser-mysql' is already checked out at ...
+
+# 同じブランチを複数のworktreeで開くことはできない
+# 解決策1: 片方のworktreeでブランチを切り替える
+cd ../slowql-parser-old
+git checkout main
+
+# 解決策2: 新しいブランチを作成
+cd ../slowql-parser-new
+git checkout -b feature/parser-mysql-v2
+```
+
+#### 削除した worktree のゴミが残っている
+
+```bash
+# worktreeディレクトリを手動削除してしまった場合
+
+# 残骸を確認
+git worktree list
+# /path/to/deleted/worktree  abc1234 [feature/branch] (error: missing)
+
+# 残骸を削除
+git worktree prune
+
+# または個別に削除
+git worktree remove /path/to/deleted/worktree
+```
+
+### パフォーマンスへの影響
+
+**メリット**:
+
+- ✅ ブランチ切り替え時の`_build`再構築が不要
+- ✅ 並行ビルド・テストが可能
+- ✅ IDE のインデックス再構築が不要
+
+**注意点**:
+
+- ⚠️ 各 worktree でディスク容量を消費（`_build`は特に大きい）
+- ⚠️ 同じファイルを複数 worktree で編集すると混乱の原因に
+
+**ディスク使用量の目安（slowql の場合）**:
+
+```
+main/           : 50MB  (ソース + .git)
+worktree-1/     : 100MB (ソース + _build)
+worktree-2/     : 100MB (ソース + _build)
+```
+
+### VSCode 設定
+
+`.vscode/settings.json`に追加:
+
+```json
+{
+  "files.watcherExclude": {
+    "**/.git/worktrees/**": true
+  }
+}
+```
+
+### おすすめの Git エイリアス
+
+`~/.gitconfig`に追加:
+
+```gitconfig
+[alias]
+  # worktree一覧を見やすく表示
+  wt = worktree list
+
+  # 新しいworktreeを作成（ブランチ名から自動でパス生成）
+  wta = "!f() { git worktree add ../${1##*/} $1; }; f"
+
+  # worktreeを削除してブランチも削除
+  wtrm = "!f() { git worktree remove $1 && git branch -d ${1##*/}; }; f"
+```
+
+使用例:
+
+```bash
+git wt                              # worktree一覧
+git wta feature/parser-mysql        # ../parser-mysql に作成
+git wtrm ../parser-mysql            # worktreeとブランチを削除
 ```
 
 ## よくある操作
