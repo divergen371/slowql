@@ -155,10 +155,6 @@ slowql/
 - `digestif`: Hashing for anonymization
 - `notty`: Terminal UI
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit issues or pull requests.
-
 ## License
 
 MIT License
