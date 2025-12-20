@@ -35,9 +35,18 @@ SlowQL は、MySQL および PostgreSQL のスロークエリログを解析し�
 
 ### 前提条件
 
-- OCaml 4.14 以降
+- OCaml 5.2 以降（推奨: `opam` switch を使い、ツールチェーンの混在を避ける）
 - opam（OCaml パッケージマネージャー）
 - dune（ビルドシステム）
+
+### ツールチェーンに関する注意（複数の OCaml が入っている場合）
+
+Homebrew と `opam` の両方で OCaml を入れていると、`dune` が別の `ocamlc` を拾って依存ライブラリの `.cmi` を読めずに失敗することがあります。
+迷ったら `opam exec` 経由で実行してください。
+
+```bash
+opam exec -- dune build
+```
 
 ### 依存ライブラリのインストール
 
@@ -48,19 +57,19 @@ opam install . --deps-only
 ### ビルド
 
 ```bash
-dune build
+opam exec -- dune build
 ```
 
 ### テスト実行
 
 ```bash
-dune runtest
+opam exec -- dune runtest
 ```
 
 ## 使い方
 
 ```bash
-dune exec -- slowql [オプション] <ログファイル...>
+opam exec -- dune exec -- slowql [オプション] <ログファイル...>
 ```
 
 ### オプション
@@ -170,3 +179,20 @@ Ishikawa
 ## 謝辞
 
 `pt-query-digest`や`pgBadger`などのツールからインスピレーションを得ています。
+
+## トラブルシュート
+
+### ocamllsp の “Compiler version mismatch … compiled interface … .cmi”
+
+別の OCaml バージョンで生成されたビルド成果物（`_build` 配下）が残っているケースが多いです。
+現在の `opam` switch でクリーン＆再ビルドしてください。
+
+```bash
+opam exec -- dune clean
+opam exec -- dune build
+```
+
+### “Corrupted compiled interface … re.cmi” / “compressed object, cannot decompress”
+
+`dune` が拾っている `ocamlc` と、`opam` がインストールしたライブラリをビルドした `ocamlc` が食い違うと起きがちです。
+`PATH` で opam の `ocamlc` を優先するか、`opam exec -- ...` を使ってください。
