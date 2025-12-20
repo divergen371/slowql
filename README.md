@@ -35,9 +35,18 @@ SlowQL is a command-line tool that parses slow query logs from MySQL and Postgre
 
 ### Prerequisites
 
-- OCaml 4.14+ or later
+- OCaml 5.2+ (recommended: use an `opam` switch and keep your toolchain consistent)
 - opam (OCaml package manager)
 - dune (build system)
+
+### Toolchain note (important if you have multiple OCaml installs)
+
+If you have both Homebrew and `opam` OCaml installed, make sure `dune` uses the same toolchain as your dependencies.
+When in doubt, run commands via `opam exec`:
+
+```bash
+opam exec -- dune build
+```
 
 ### Install Dependencies
 
@@ -48,19 +57,19 @@ opam install . --deps-only
 ### Build
 
 ```bash
-dune build
+opam exec -- dune build
 ```
 
 ### Run Tests
 
 ```bash
-dune runtest
+opam exec -- dune runtest
 ```
 
 ## Usage
 
 ```bash
-dune exec -- slowql [OPTIONS] <log-files...>
+opam exec -- dune exec -- slowql [OPTIONS] <log-files...>
 ```
 
 ### Options
@@ -162,6 +171,23 @@ slowql/
 ## License
 
 MIT License
+
+## Troubleshooting
+
+### ocamllsp “Compiler version mismatch … compiled interface … .cmi”
+
+This usually means stale build artifacts were produced by a different OCaml compiler version.
+Clean and rebuild using your current `opam` switch:
+
+```bash
+opam exec -- dune clean
+opam exec -- dune build
+```
+
+### “Corrupted compiled interface … re.cmi” / “compressed object, cannot decompress”
+
+This typically happens when `dune` uses a different `ocamlc` than the one that built your `opam` libraries.
+Ensure `opam`’s `ocamlc` is first in `PATH` (or use `opam exec -- ...`).
 
 ## Author
 

@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+
+# Always run dune under the current opam switch to avoid mixing toolchains
+# (e.g. Homebrew ocamlc with opam-installed libraries).
+exec opam exec -- dune "$@"
+
+
