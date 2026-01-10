@@ -24,3 +24,6 @@ _opam/
 # Test outputs
 *.output
 _tests/
+
+# AI Assistant
+.specstory/
